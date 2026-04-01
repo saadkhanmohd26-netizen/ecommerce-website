@@ -1,0 +1,434 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+{% if items %}
+<main class="container">
+    <a href="{{ url_for('index') }}" class="back-link">&larr; Continue Shopping</a>
+    <h1 class="cart-title">Shopping Cart</h1>
+
+    <div class="cart-layout">
+        <div class="cart-items">
+            {% for item in items %}
+            <div class="cart-item">
+                <img src="{{ url_for('static', filename='images/' + item.image) }}" alt="{{ item.name }}" class="cart-item-image">
+                <div class="cart-item-details">
+                    <div>
+                        <h3 class="cart-item-name">{{ item.name }}</h3>
+                        <p class="cart-item-price-each">Rs {{ item.price|currency }}</p>
+                    </div>
+                    <div class="quantity-controls">
+                        <a href="{{ url_for('update_cart', product_id=item.id, action='decrease') }}" class="qty-btn">&minus;</a>
+                        <span class="qty-value">{{ item.quantity }}</span>
+                        <a href="{{ url_for('update_cart', product_id=item.id, action='increase') }}" class="qty-btn">+</a>
+                        <a href="{{ url_for('update_cart', product_id=item.id, action='remove') }}" class="remove-btn">&#128465; Remove</a>
+                    </div>
+                </div>
+                <span class="cart-item-total">Rs {{ item.subtotal|currency }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            <div class="summary-row"><span>Subtotal</span><span>Rs {{ total|currency }}</span></div>
+            <div class="summary-row"><span>Shipping</span><span>Free</span></div>
+            <div class="summary-total"><span>Total</span><span>Rs {{ total|currency }}</span></div>
+
+            <form action="{{ url_for('checkout') }}" method="POST" class="checkout-form" id="checkout-form">
+                <div class="address-section">
+                    <div class="section-heading-row">
+                        <div>
+                            <p class="section-eyebrow">Shipping</p>
+                            <h3 class="section-title">Delivery Address</h3>
+                        </div>
+                    </div>
+
+                    <div class="form-group-inline">
+                        <label class="form-label" for="street_address">Street Address *</label>
+                        <input id="street_address" type="text" name="street_address" class="form-input-small" placeholder="123 Main Street" required>
+                    </div>
+
+                    <div class="checkout-grid two-column">
+                        <div class="form-group-inline">
+                            <label class="form-label" for="city">City *</label>
+                            <input id="city" type="text" name="city" class="form-input-small" placeholder="New York" required>
+                        </div>
+
+                        <div class="form-group-inline">
+                            <label class="form-label" for="state">State/Province *</label>
+                            <input id="state" type="text" name="state" class="form-input-small" placeholder="NY" required>
+                        </div>
+                    </div>
+
+                    <div class="checkout-grid two-column">
+                        <div class="form-group-inline">
+                            <label class="form-label" for="zip_code">Zip Code *</label>
+                            <input id="zip_code" type="text" name="zip_code" class="form-input-small" placeholder="10001" required>
+                        </div>
+
+                        <div class="form-group-inline">
+                            <label class="form-label" for="phone">Phone Number *</label>
+                            <input id="phone" type="tel" name="phone" class="form-input-small" placeholder="+1 (555) 123-4567" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-section">
+                    <div class="section-heading-row">
+                        <div>
+                            <p class="section-eyebrow">Payment</p>
+                            <h3 class="section-title">Choose Payment Method</h3>
+                        </div>
+                        <span class="security-badge">Secure checkout</span>
+                    </div>
+
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="credit_card" checked required>
+                            <span class="payment-label-wrap">
+                                <span class="payment-label">Credit Card</span>
+                                <span class="payment-meta">Visa, Mastercard, RuPay</span>
+                            </span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="debit_card" required>
+                            <span class="payment-label-wrap">
+                                <span class="payment-label">Debit Card</span>
+                                <span class="payment-meta">Direct bank card payment</span>
+                            </span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="google_pay" required>
+                            <span class="payment-label-wrap">
+                                <span class="payment-label">Google Pay</span>
+                                <span class="payment-meta">Scan to pay with Google Pay</span>
+                            </span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="paypal" required>
+                            <span class="payment-label-wrap">
+                                <span class="payment-label">PayPal</span>
+                                <span class="payment-meta">Sandbox-style wallet checkout</span>
+                            </span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="apple_pay" required>
+                            <span class="payment-label-wrap">
+                                <span class="payment-label">Apple Pay</span>
+                                <span class="payment-meta">Fast checkout on supported devices</span>
+                            </span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="cash_on_delivery" required>
+                            <span class="payment-label-wrap">
+                                <span class="payment-label">Cash on Delivery</span>
+                                <span class="payment-meta">Pay when your order arrives</span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="payment-detail-panels">
+                        <div class="payment-detail-panel active" data-method-panel="credit_card debit_card">
+                            <div class="payment-panel-header">
+                                <h4>Card Details</h4>
+                                <p>Enter your card information to complete this demo checkout securely.</p>
+                            </div>
+                            <div class="card-preview">
+                                <span class="card-chip"></span>
+                                <span class="card-brand">CARD</span>
+                                <span class="card-preview-number" id="card-preview-number">XXXX XXXX XXXX XXXX</span>
+                                <div class="card-preview-footer">
+                                    <span id="card-preview-name">Cardholder Name</span>
+                                    <span id="card-preview-expiry">MM/YY</span>
+                                </div>
+                            </div>
+                            <div class="form-group-inline">
+                                <label class="form-label" for="cardholder_name">Name on Card *</label>
+                                <input id="cardholder_name" type="text" name="cardholder_name" class="form-input-small payment-input" placeholder="Alex Johnson" data-payment-input="card">
+                            </div>
+                            <div class="form-group-inline">
+                                <label class="form-label" for="card_number">Card Number *</label>
+                                <input id="card_number" type="text" name="card_number" class="form-input-small payment-input" placeholder="4111 1111 1111 1111" inputmode="numeric" maxlength="19" data-payment-input="card">
+                            </div>
+                            <div class="checkout-grid two-column">
+                                <div class="form-group-inline">
+                                    <label class="form-label" for="expiry_date">Expiry Date *</label>
+                                    <input id="expiry_date" type="text" name="expiry_date" class="form-input-small payment-input" placeholder="MM/YY" inputmode="numeric" maxlength="5" data-payment-input="card">
+                                </div>
+                                <div class="form-group-inline">
+                                    <label class="form-label" for="cvv">CVV *</label>
+                                    <input id="cvv" type="password" name="cvv" class="form-input-small payment-input" placeholder="123" inputmode="numeric" maxlength="4" data-payment-input="card">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="payment-detail-panel" data-method-panel="google_pay">
+                            <div class="payment-panel-header">
+                                <h4>Google Pay</h4>
+                                <p>Scan the QR code with Google Pay to complete your order instantly.</p>
+                            </div>
+                            <div class="gpay-demo-card">
+                                <div class="fake-qr-wrapper">
+                                    <img
+                                        src=""
+                                        alt="Google Pay QR code"
+                                        class="fake-qr-image is-empty"
+                                        id="google-pay-qr"
+                                    >
+                                </div>
+                                <div class="gpay-demo-copy">
+                                    <span class="demo-pill">Google Pay</span>
+                                    <strong>Scan to pay</strong>
+                                    <p id="google-pay-status">Enter your delivery address to generate the QR code.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="payment-detail-panel" data-method-panel="paypal">
+                            <div class="payment-panel-header">
+                                <h4>PayPal Checkout</h4>
+                                <p>This demo keeps the customer on-site instead of redirecting to a live PayPal window.</p>
+                            </div>
+                            <div class="wallet-note">
+                                <strong>Professional demo note:</strong>
+                                <span>In production, this step would redirect to PayPal for authorization and then return to order confirmation.</span>
+                            </div>
+                        </div>
+
+                        <div class="payment-detail-panel" data-method-panel="apple_pay">
+                            <div class="payment-panel-header">
+                                <h4>Apple Pay</h4>
+                                <p>Available as a polished demo section for supported browsers and devices.</p>
+                            </div>
+                            <div class="wallet-note">
+                                <strong>Preview mode:</strong>
+                                <span>This prototype presents Apple Pay as a branded option without triggering a native payment sheet.</span>
+                            </div>
+                        </div>
+
+                        <div class="payment-detail-panel" data-method-panel="cash_on_delivery">
+                            <div class="payment-panel-header">
+                                <h4>Cash on Delivery</h4>
+                                <p>Keep exact change ready at the time of delivery for a smooth handoff.</p>
+                            </div>
+                            <div class="wallet-note">
+                                <strong>What happens next:</strong>
+                                <span>Your order will be reserved now and payment will be collected by the delivery partner.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="checkout-btn" id="checkout-submit">Place Order</button>
+            </form>
+        </div>
+    </div>
+</main>
+{% else %}
+<main class="empty-cart">
+    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#c4bbb0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    <h2>Your cart is empty</h2>
+    <p>Start adding some products!</p>
+    <a href="{{ url_for('index') }}" class="browse-btn">Browse Products</a>
+</main>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
+    const panels = document.querySelectorAll('.payment-detail-panel');
+    const submitButton = document.getElementById('checkout-submit');
+    const cardInputs = document.querySelectorAll('[data-payment-input="card"]');
+    const cardNumberInput = document.getElementById('card_number');
+    const expiryInput = document.getElementById('expiry_date');
+    const cardholderInput = document.getElementById('cardholder_name');
+    const previewNumber = document.getElementById('card-preview-number');
+    const previewName = document.getElementById('card-preview-name');
+    const previewExpiry = document.getElementById('card-preview-expiry');
+    const checkoutForm = document.getElementById('checkout-form');
+    const googlePayQr = document.getElementById('google-pay-qr');
+    const googlePayStatus = document.getElementById('google-pay-status');
+    const addressInputs = [
+        document.getElementById('street_address'),
+        document.getElementById('city'),
+        document.getElementById('state'),
+        document.getElementById('zip_code'),
+        document.getElementById('phone')
+    ];
+    let googlePayToken = null;
+    let googlePayPoller = null;
+    let qrGenerationTimer = null;
+
+    function setCardRequired(isRequired) {
+        cardInputs.forEach(function (input) {
+            input.required = isRequired;
+        });
+    }
+
+    function updatePaymentPanels() {
+        const selected = document.querySelector('input[name="payment_method"]:checked');
+        if (!selected) return;
+
+        const method = selected.value;
+        panels.forEach(function (panel) {
+            const methods = panel.dataset.methodPanel.split(' ');
+            panel.classList.toggle('active', methods.includes(method));
+        });
+
+        setCardRequired(method === 'credit_card' || method === 'debit_card');
+        submitButton.disabled = method === 'google_pay';
+
+        const labels = {
+            credit_card: 'Pay Securely',
+            debit_card: 'Pay Securely',
+            google_pay: 'Scan QR to Place Order',
+            paypal: 'Continue with PayPal',
+            apple_pay: 'Continue with Apple Pay',
+            cash_on_delivery: 'Place COD Order'
+        };
+        submitButton.textContent = labels[method] || 'Place Order';
+
+        if (method === 'google_pay') {
+            queueGooglePayQrRefresh();
+        } else {
+            stopGooglePayPolling();
+        }
+    }
+
+    function formatCardNumber() {
+        const digits = cardNumberInput.value.replace(/\D/g, '').slice(0, 16);
+        const groups = digits.match(/.{1,4}/g) || [];
+        cardNumberInput.value = groups.join(' ');
+        previewNumber.textContent = groups.length ? groups.join(' ') : 'XXXX XXXX XXXX XXXX';
+    }
+
+    function formatExpiry() {
+        const digits = expiryInput.value.replace(/\D/g, '').slice(0, 4);
+        expiryInput.value = digits.length >= 3 ? digits.slice(0, 2) + '/' + digits.slice(2) : digits;
+        previewExpiry.textContent = expiryInput.value || 'MM/YY';
+    }
+
+    function updateCardholder() {
+        previewName.textContent = cardholderInput.value.trim() || 'Cardholder Name';
+    }
+
+    function stopGooglePayPolling() {
+        if (googlePayPoller) {
+            clearInterval(googlePayPoller);
+            googlePayPoller = null;
+        }
+    }
+
+    function getGooglePayFormData() {
+        const formData = new FormData();
+        addressInputs.forEach(function (input) {
+            formData.append(input.name, input.value.trim());
+        });
+        return formData;
+    }
+
+    function hasCompleteAddress() {
+        return addressInputs.every(function (input) {
+            return input && input.value.trim();
+        });
+    }
+
+    function startGooglePayPolling(statusUrl) {
+        stopGooglePayPolling();
+        googlePayPoller = setInterval(function () {
+            fetch(statusUrl, { credentials: 'same-origin' })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    if (data.status === 'completed' && data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    }
+                })
+                .catch(function () {
+                    googlePayStatus.textContent = 'Waiting for payment confirmation...';
+                });
+        }, 2500);
+    }
+
+    function queueGooglePayQrRefresh() {
+        if (!googlePayQr || document.querySelector('input[name="payment_method"]:checked')?.value !== 'google_pay') {
+            return;
+        }
+
+        clearTimeout(qrGenerationTimer);
+        qrGenerationTimer = setTimeout(generateGooglePayQr, 300);
+    }
+
+    function generateGooglePayQr() {
+        if (!hasCompleteAddress()) {
+            googlePayToken = null;
+            googlePayQr.removeAttribute('src');
+            googlePayQr.classList.add('is-empty');
+            googlePayStatus.textContent = 'Enter your delivery address to generate the QR code.';
+            stopGooglePayPolling();
+            return;
+        }
+
+        googlePayStatus.textContent = 'Generating QR code...';
+        fetch('{{ url_for("prepare_google_pay") }}', {
+            method: 'POST',
+            body: getGooglePayFormData(),
+            credentials: 'same-origin'
+        })
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Unable to generate QR code.');
+                    }
+                    return data;
+                });
+            })
+            .then(function (data) {
+                googlePayToken = data.token;
+                googlePayQr.src = data.qr_image_url + '?t=' + Date.now();
+                googlePayQr.classList.remove('is-empty');
+                googlePayStatus.textContent = 'Scan the QR code to place your order.';
+                startGooglePayPolling(data.status_url);
+            })
+            .catch(function (error) {
+                googlePayQr.removeAttribute('src');
+                googlePayQr.classList.add('is-empty');
+                googlePayStatus.textContent = error.message;
+                stopGooglePayPolling();
+            });
+    }
+
+    paymentMethods.forEach(function (methodInput) {
+        methodInput.addEventListener('change', updatePaymentPanels);
+    });
+
+    checkoutForm.addEventListener('submit', function (event) {
+        const selected = document.querySelector('input[name="payment_method"]:checked');
+        if (selected && selected.value === 'google_pay') {
+            event.preventDefault();
+            queueGooglePayQrRefresh();
+        }
+    });
+
+    addressInputs.forEach(function (input) {
+        input.addEventListener('input', queueGooglePayQrRefresh);
+        input.addEventListener('change', queueGooglePayQrRefresh);
+    });
+
+    if (cardNumberInput) {
+        cardNumberInput.addEventListener('input', formatCardNumber);
+    }
+
+    if (expiryInput) {
+        expiryInput.addEventListener('input', formatExpiry);
+    }
+
+    if (cardholderInput) {
+        cardholderInput.addEventListener('input', updateCardholder);
+    }
+
+    updatePaymentPanels();
+});
+</script>
+{% endblock %}
+
+

@@ -1,0 +1,114 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<main class="container">
+    <div class="confirmation-wrapper">
+        <div class="confirmation-header">
+            <div class="success-icon">&#10003;</div>
+            <h1>Order Confirmed!</h1>
+            <p class="confirmation-subtitle">Thank you for your purchase. Your order has been successfully placed.</p>
+        </div>
+
+        <div class="confirmation-card">
+            <div class="order-info-section">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Order Number</span>
+                        <span class="info-value">#{{ order.id }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Order Date</span>
+                        <span class="info-value">{{ order.order_date | strftime('%B %d, %Y') }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Order Time</span>
+                        <span class="info-value">{{ order.order_date | strftime('%I:%M %p') }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Status</span>
+                        <span class="info-value status-completed">Completed</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="address-section">
+                <h3 class="section-heading">Delivery Address</h3>
+                <div class="address-box">
+                    <p class="address-line"><strong>{{ user.fullname }}</strong></p>
+                    <p class="address-line">{{ order.street_address }}</p>
+                    <p class="address-line">{{ order.city }}, {{ order.state }} {{ order.zip_code }}</p>
+                    <p class="address-line">Phone: {{ order.phone }}</p>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="items-section">
+                <h3 class="section-heading">Order Items</h3>
+                <div class="confirmation-items">
+                    {% for item in items %}
+                    <div class="confirmation-item">
+                        <div class="item-details">
+                            <h4 class="item-name">{{ item.name }}</h4>
+                            <p class="item-meta">Quantity: <strong>{{ item.quantity }}</strong> x Rs {{ item.price|currency }}</p>
+                        </div>
+                        <div class="item-price">Rs {{ item.subtotal|currency }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="payment-summary">
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>Rs {{ order.total_amount|currency }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span>Free</span>
+                </div>
+                <div class="summary-row total-row">
+                    <span>Total Amount</span>
+                    <span>Rs {{ order.total_amount|currency }}</span>
+                </div>
+                <div class="payment-method">
+                    <span class="method-label">Payment Method:</span>
+                    <span class="method-value">
+                        {% if order.payment_method == 'credit_card' %}
+                            Credit Card
+                        {% elif order.payment_method == 'debit_card' %}
+                            Debit Card
+                        {% elif order.payment_method == 'paypal' %}
+                            PayPal
+                        {% elif order.payment_method == 'google_pay' %}
+                            Google Pay
+                        {% elif order.payment_method == 'apple_pay' %}
+                            Apple Pay
+                        {% elif order.payment_method == 'cash_on_delivery' %}
+                            Cash on Delivery
+                        {% else %}
+                            {{ order.payment_method|title }}
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="confirmation-actions">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Continue Shopping</a>
+            </div>
+        </div>
+
+        <div class="confirmation-message">
+            <p>A confirmation email has been sent to <strong>{{ user.email }}</strong></p>
+            <p>Your order will be delivered within 3-5 business days.</p>
+        </div>
+    </div>
+</main>
+{% endblock %}
+

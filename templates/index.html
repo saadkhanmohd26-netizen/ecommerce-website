@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="container">
+    <section class="hero">
+        <h1>Discover Our Collection</h1>
+        <p>Curated essentials for everyday life</p>
+    </section>
+
+    <!-- Category Filters -->
+    <div class="filters">
+        {% for cat in categories %}
+        <a href="?category={{ cat }}" class="filter-btn {{ 'active' if active_category == cat else '' }}">{{ cat }}</a>
+        {% endfor %}
+    </div>
+
+    <!-- Product Grid -->
+    <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <div class="product-image-wrapper">
+                <img src="{{ url_for('static', filename='images/' + product.image) }}" alt="{{ product.name }}" class="product-image" loading="lazy">
+            </div>
+            <div class="product-info">
+                <p class="product-category">{{ product.category }}</p>
+                <h3 class="product-name">{{ product.name }}</h3>
+                <p class="product-desc">{{ product.description }}</p>
+                <div class="product-footer">
+                    <span class="product-price">₹{{ product.price|currency }}</span>
+                    <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="add-btn">+ Add</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+{% endblock %}
