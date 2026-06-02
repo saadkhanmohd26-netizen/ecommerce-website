@@ -85,7 +85,7 @@ class Order(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     total_amount = db.Column(db.Float, nullable=False)
     payment_method = db.Column(db.String(50), nullable=False)
-    order_date = db.Column(db.DateTime, default=datetime.utcnow)
+    order_date = db.Column(db.DateTime, default=datetime.now)
     items = db.Column(db.Text, nullable=False)  # JSON string of cart items
     status = db.Column(db.String(20), default='completed')
     
@@ -298,6 +298,7 @@ def create_order_for_user(user_id, payment_method, cart_data, street_address, ci
         user_id=user_id,
         total_amount=total,
         payment_method=payment_method,
+        order_date=datetime.now(),
         items=json.dumps(items_info),
         status="completed",
         street_address=street_address,
